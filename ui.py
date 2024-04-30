@@ -24,7 +24,7 @@ class UserInterface:
         self.window.title("Pantry Application")
         self.window.config(padx=20, pady=20, bg=WHITE)
         self.window.geometry("440x540")
-        self.bg_image = ImageTk.PhotoImage(Image.open("./img/polkadot.jpg")) # Image by juicy_fisha on Freepik
+        # self.bg_image = ImageTk.PhotoImage(Image.open("./img/polkadot.jpg")) # Image by juicy_fisha on Freepik
 
         self.home()
         self.window.mainloop()
