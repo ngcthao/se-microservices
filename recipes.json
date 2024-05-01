@@ -1,8 +1,8 @@
 {
-    "Help": {
-        "description": ""
+    "Cake": {
+        "description": "Cream the butter, oil, and sugar in the bowl of a stand mixer."
     },
     "Pie": {
-        "description": "wer"
+        "description": "Add the eggs one at a time, beating well after each addition. Then, add your vanilla and stir to combine."
     }
 }

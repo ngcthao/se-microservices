@@ -35,7 +35,7 @@ class Pantry:
             else:
                 data.update(ingredient)
                 with open(self.file, 'w', encoding='utf-8') as f:
-                    json.dump(data, f, indent=4)
+                    json.dump(data, f, indent=4, sort_keys=True)
         else:
             with open(self.file, 'w', encoding='utf-8') as f:
                 json.dump(ingredient, f, indent=4)
