@@ -1,8 +1,30 @@
 {
     "banana": {
-        "quantity": 1
+        "quantity": 5,
+        "unit of measurement": "units"
     },
     "apple": {
-        "quantity": 1
+        "quantity": 3,
+        "unit of measurement": "units"
+    },
+    "strawberry": {
+        "quantity": 2,
+        "unit of measurement": "boxes"
+    },
+    "white bread": {
+        "quantity": 2,
+        "unit of measurement": "bags"
+    },
+    "cherries": {
+        "quantity": 2,
+        "unit of measurement": "boxes"
+    },
+    "yogurt": {
+        "quantity": 3,
+        "unit of measurement": "units"
+    },
+    "cake": {
+        "quantity": 1,
+        "unit of measurement": "boxes"
     }
 }

@@ -4,18 +4,23 @@ import pandas as pd
 
 
 class Ingredient:
-    def __init__(self, ingredient, quantity):
-        self.name = ingredient
-        self.count = quantity
+    def __init__(self, args):
+        self.name = args[0].title()
+        self.count = args[1]
+        self.units = args[2].lower()
 
 
 class Pantry:
     def __init__(self):
         self.file = 'ingredients.json'
 
-    def new_ingredient(self, item):
+    def new_ingredient(self, args):
+        item = Ingredient(args)
         ingredient = {
-            item.name: {"quantity": item.count}
+            item.name: {
+                "quantity": item.count,
+                "unit of measurement": item.units
+                        }
         }
         if os.path.exists(self.file):
             with open(self.file, 'r', encoding='utf-8') as f:

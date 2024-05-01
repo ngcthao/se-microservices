@@ -4,20 +4,19 @@ import pandas as pd
 
 
 class Recipe:
-    def __init__(self, name, ingredients, description):
-        self.name = name
-        self.ingredients = ingredients
-        self.description = description
+    def __init__(self, args):
+        self.name = args[0].title()
+        self.description = args[1]
 
 
 class RecipeBook:
     def __init__(self):
         self.file = 'recipes.json'
 
-    def new_recipe(self, item):
+    def new_recipe(self, args):
+        item = Recipe(args)
         recipe = {
             item.name: {
-                "ingredients": item.ingredients,
                 "description": item.description
             }
         }

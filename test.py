@@ -1,129 +1,77 @@
 import tkinter as tk
-from tkinter import ttk
 
-LARGEFONT = ("Verdana", 35)
+LABEL_BG = 'light grey'
+ROWS, COLS = 10, 6  # Size of grid.
+ROWS_DISP = 3  # Number of rows to display.
+COLS_DISP = 4  # Number of columns to display.
 
 
-class tkinterApp(tk.Tk):
+class HoverButton(tk.Button):
+    """ Button that changes color to activebackground when mouse is over it. """
 
-    # __init__ function for class tkinterApp
-    def __init__(self, *args, **kwargs):
-        # __init__ function for class Tk
+    def __init__(self, master, **kw):
+        super().__init__(master=master, **kw)
+        self.default_Background = self.cget('background')
+        self.hover_Background = self.cget('activebackground')
+        self.bind('<Enter>', self.on_enter)
+        self.bind('<Leave>', self.on_leave)
+
+    def on_enter(self, e):
+        self.config(background=self.hover_Background)
+
+    def on_leave(self, e):
+        self.config(background=self.default_Background)
+
+
+class MyApp(tk.Tk):
+    def __init__(self, title='Sample App', *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
 
-        # creating a container
-        container = tk.Frame(self)
-        container.pack(side="top", fill="both", expand=True)
+        self.title(title)
+        self.configure(background='Gray')
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
 
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        master_frame = tk.Frame(self, bg='Light Blue', bd=3, relief=tk.RIDGE)
+        master_frame.grid(sticky=tk.NSEW)
+        master_frame.columnconfigure(0, weight=1)
 
-        # initializing frames to an empty array
-        self.frames = {}
+        # Create a frame for the canvas and scrollbar(s).
+        frame2 = tk.Frame(master_frame, bg='Red', bd=2, relief=tk.FLAT)
+        frame2.grid(row=3, column=0, sticky=tk.NW)
 
-        # iterating through a tuple consisting
-        # of the different page layouts
-        for F in (StartPage, Page1, Page2):
-            frame = F(container, self)
+        # Add a canvas in that frame.
+        canvas = tk.Canvas(frame2, bg='Yellow')
+        canvas.grid(row=0, column=0)
 
-            # initializing frame of that object from
-            # startpage, page1, page2 respectively with
-            # for loop
-            self.frames[F] = frame
+        # Create a vertical scrollbar linked to the canvas.
+        vsbar = tk.Scrollbar(frame2, orient=tk.VERTICAL, command=canvas.yview)
+        vsbar.grid(row=0, column=1, sticky=tk.NS)
+        canvas.configure(yscrollcommand=vsbar.set)
 
-            frame.grid(row=0, column=0, sticky="nsew")
+        # Create a frame on the canvas to contain the grid of buttons.
+        buttons_frame = tk.Frame(canvas)
 
-        self.show_frame(StartPage)
+        # Add the buttons to the frame.
+        for i in range(1, ROWS+1):
+            for j in range(1, COLS+1):
+                button = HoverButton(buttons_frame, padx=7, pady=7, relief=tk.RIDGE,
+                                     activebackground= 'orange', text='[%d, %d]' % (i, j))
+                button.grid(row=i, column=j, sticky='news')
 
-    # to display the current frame passed as
-    # parameter
-    def show_frame(self, cont):
-        frame = self.frames[cont]
-        frame.tkraise()
+        # Create canvas window to hold the buttons_frame.
+        canvas.create_window((0,0), window=buttons_frame, anchor=tk.NW)
 
+        buttons_frame.update_idletasks()  # Needed to make bbox info available.
+        bbox = canvas.bbox(tk.ALL)  # Get bounding box of canvas with Buttons.
 
-# first window frame startpage
-
-class StartPage(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-
-        # label of frame Layout 2
-        label = ttk.Label(self, text="Startpage", font=LARGEFONT)
-
-        # putting the grid in its place by using
-        # grid
-        label.grid(row=0, column=4, padx=10, pady=10)
-
-        button1 = ttk.Button(self, text="Page 1",
-                             command=lambda: controller.show_frame(Page1))
-
-        # putting the button in its place by
-        # using grid
-        button1.grid(row=1, column=1, padx=10, pady=10)
-
-        ## button to show frame 2 with text layout2
-        button2 = ttk.Button(self, text="Page 2",
-                             command=lambda: controller.show_frame(Page2))
-
-        # putting the button in its place by
-        # using grid
-        button2.grid(row=2, column=1, padx=10, pady=10)
+        # Define the scrollable region as entire canvas with only the desired
+        # number of rows and columns displayed.
+        w, h = bbox[2]-bbox[1], bbox[3]-bbox[1]
+        dw, dh = int((w/COLS) * COLS_DISP), int((h/ROWS) * ROWS_DISP)
+        canvas.configure(scrollregion=bbox, width=dw, height=dh)
 
 
-# second window frame page1
-class Page1(tk.Frame):
-
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = ttk.Label(self, text="Page 1", font=LARGEFONT)
-        label.grid(row=0, column=4, padx=10, pady=10)
-
-        # button to show frame 2 with text
-        # layout2
-        button1 = ttk.Button(self, text="StartPage",
-                             command=lambda: controller.show_frame(StartPage))
-
-        # putting the button in its place
-        # by using grid
-        button1.grid(row=1, column=1, padx=10, pady=10)
-
-        # button to show frame 2 with text
-        # layout2
-        button2 = ttk.Button(self, text="Page 2",
-                             command=lambda: controller.show_frame(Page2))
-
-        # putting the button in its place by
-        # using grid
-        button2.grid(row=2, column=1, padx=10, pady=10)
-
-
-# third window frame page2
-class Page2(tk.Frame):
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = ttk.Label(self, text="Page 2", font=LARGEFONT)
-        label.grid(row=0, column=4, padx=10, pady=10)
-
-        # button to show frame 2 with text
-        # layout2
-        button1 = ttk.Button(self, text="Page 1",
-                             command=lambda: controller.show_frame(Page1))
-
-        # putting the button in its place by
-        # using grid
-        button1.grid(row=1, column=1, padx=10, pady=10)
-
-        # button to show frame 3 with text
-        # layout3
-        button2 = ttk.Button(self, text="Startpage",
-                             command=lambda: controller.show_frame(StartPage))
-
-        # putting the button in its place by
-        # using grid
-        button2.grid(row=2, column=1, padx=10, pady=10)
-
-
-# Driver Code
-app = tkinterApp()
-app.mainloop()
+if __name__ == '__main__':
+    app = MyApp('Scrollable Canvas')
+    app.mainloop()

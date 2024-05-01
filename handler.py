@@ -14,3 +14,9 @@ class Handler:
     def search_for_recipe(self, recipe):
         data = self.book.search_recipes(recipe)
         return data
+
+    def new_ingredient(self, args):
+        self.pantry.new_ingredient(args)
+
+    def new_recipe(self, args):
+        self.book.new_recipe(args)
