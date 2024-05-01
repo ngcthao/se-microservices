@@ -1,5 +1,7 @@
 import json
 import os
+from json import JSONDecodeError
+
 import pandas as pd
 
 
@@ -22,22 +24,34 @@ class Pantry:
                 "unit of measurement": item.units
                         }
         }
-        if os.path.exists(self.file):
-            with open(self.file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                data.update(ingredient)
 
-            with open(self.file, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=4)
+        if os.path.exists(self.file):
+            try:
+                with open(self.file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            except JSONDecodeError:
+                with open(self.file, 'w', encoding='utf-8') as f:
+                    json.dump(ingredient, f, indent=4)
+            else:
+                data.update(ingredient)
+                with open(self.file, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, indent=4)
         else:
             with open(self.file, 'w', encoding='utf-8') as f:
                 json.dump(ingredient, f, indent=4)
 
     def read_ingredients(self):
+        output = ""
         if os.path.exists(self.file):
-            with open(self.file, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            data = json.dumps(data)
-            data = json.loads(data)
-            output = pd.DataFrame(data).transpose()
-            return output
+            try:
+                with open(self.file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            except JSONDecodeError:
+                pass
+            else:
+                data = json.dumps(data)
+                data = json.loads(data)
+                output = pd.DataFrame(data).transpose()
+            finally:
+                return output
+
