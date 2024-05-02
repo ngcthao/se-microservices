@@ -30,8 +30,9 @@ class UserInterface:
         self.window.config(padx=20, pady=20, bg=WHITE)
         self.window.geometry("440x540")
         # self.bg_image = ImageTk.PhotoImage(Image.open("./img/polkadot.jpg")) # Image by juicy_fisha on Freepik
-
+        self.welcome = True;
         self.home()
+
         self.window.mainloop()
 
     def home(self):
@@ -40,6 +41,7 @@ class UserInterface:
         """
         for i in self.window.winfo_children():
             i.destroy()
+
         self.window.grid_columnconfigure((0, 1, 2, 3), weight=1, uniform="column")
         self.window.grid_rowconfigure((0, 1, 2), weight=1, uniform="row", minsize=100)
         frame = Frame(self.window, width=win_width, height=win_height, bg=THEME_COLOR)
@@ -67,6 +69,9 @@ class UserInterface:
         Hovertip(buttons[2], 'Delete existing ingredient, recipe or shopping item.', hover_delay=1000)
         Hovertip(buttons[3], 'Go to homepage.', hover_delay=1000)
         nav_grid(buttons, 3)
+
+        if self.welcome:
+            self.welcome_popup()
 
     def welcome_popup(self):
         """
@@ -266,6 +271,9 @@ class UserInterface:
 
         submit = Button(top, text="Confirm", command=lambda: self.submit(top, args, self.recipes))
         submit.grid(column=0, row=2, columnspan=2)
+
+    def add_redirect(self):
+
 
     def submit(self, window, args, reload):
         """
