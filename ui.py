@@ -272,9 +272,6 @@ class UserInterface:
         submit = Button(top, text="Confirm", command=lambda: self.submit(top, args, self.recipes))
         submit.grid(column=0, row=2, columnspan=2)
 
-    def add_redirect(self):
-
-
     def submit(self, window, args, reload):
         """
         Submits user inputs and refreshes the page
