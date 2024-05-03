@@ -30,7 +30,7 @@ class UserInterface:
         self.window.config(padx=20, pady=20, bg=WHITE)
         self.window.geometry("440x540")
         # self.bg_image = ImageTk.PhotoImage(Image.open("./img/polkadot.jpg")) # Image by juicy_fisha on Freepik
-        self.welcome = True;
+        self.welcome = False;
         self.home()
 
         self.window.mainloop()
@@ -57,7 +57,7 @@ class UserInterface:
 
         Hovertip(button1, 'View all ingredients in the pantry.', hover_delay=1000)
         Hovertip(button2, 'View all saved recipes.', hover_delay=1000)
-        Hovertip(button3, 'View items in the shopping cart.', hover_delay=1000)
+        Hovertip(button3, 'View the welcome page.', hover_delay=1000)
 
         buttons = [
             Button(text="Add"),
@@ -224,7 +224,7 @@ class UserInterface:
 
         buttons_frame.grid_columnconfigure((0, 1, 2, 3), weight=19, uniform="column")
         for row_num in range(buttons_frame.grid_size()[1]):
-            buttons_frame.grid_rowconfigure(row_num, weight=1, uniform="row", minsize=50)
+            buttons_frame.grid_rowconfigure(row_num, weight=1, uniform="row", minsize=100)
 
         canvas.create_window((0, 0), window=buttons_frame)
         buttons_frame.update_idletasks()

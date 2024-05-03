@@ -2,5 +2,21 @@
     "Apple": {
         "quantity": 1,
         "unit of measurement": "units"
+    },
+    "Chicken": {
+        "quantity": 1,
+        "unit of measurement": "units"
+    },
+    "Eggs": {
+        "quantity": 1,
+        "unit of measurement": "trays"
+    },
+    "Grapes": {
+        "quantity": 1,
+        "unit of measurement": "units"
+    },
+    "Lamb": {
+        "quantity": 1,
+        "unit of measurement": "units"
     }
 }
