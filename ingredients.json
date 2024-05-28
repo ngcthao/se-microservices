@@ -7,6 +7,10 @@
         "quantity": 1,
         "unit of measurement": "units"
     },
+    "Eat": {
+        "quantity": "1",
+        "unit of measurement": "units"
+    },
     "Eggs": {
         "quantity": 1,
         "unit of measurement": "trays"
@@ -15,8 +19,16 @@
         "quantity": 1,
         "unit of measurement": "units"
     },
+    "Icecream": {
+        "quantity": "1",
+        "unit of measurement": "pint"
+    },
     "Lamb": {
         "quantity": 1,
+        "unit of measurement": "units"
+    },
+    "Pen": {
+        "quantity": "2",
         "unit of measurement": "units"
     }
 }

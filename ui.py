@@ -3,12 +3,15 @@
 
 from tkinter import *
 from idlelib.tooltip import Hovertip
-from PIL import Image, ImageTk
-from handler import Handler
+import socket
 THEME_COLOR = "#375362"
 WHITE = "#FFFFFF"
 win_width = 400
 win_height = 500
+SERVER_IP = "127.0.0.1"
+RECIPE_PORT = 8100
+PANTRY_PORT = 8400
+WELCOME_PORT = 8300
 
 
 def nav_grid(buttons, row):
@@ -23,14 +26,11 @@ class UserInterface:
     """
     Handles the graphical interface of the pantry application.
     """
-    def __init__(self, handler: Handler):
-        self.handler = handler
+    def __init__(self):
         self.window = Tk()
         self.window.title("Pantry Application")
         self.window.config(padx=20, pady=20, bg=WHITE)
         self.window.geometry("440x540")
-        # self.bg_image = ImageTk.PhotoImage(Image.open("./img/polkadot.jpg")) # Image by juicy_fisha on Freepik
-        self.welcome = False;
         self.home()
 
         self.window.mainloop()
@@ -42,8 +42,13 @@ class UserInterface:
         for i in self.window.winfo_children():
             i.destroy()
 
-        self.window.grid_columnconfigure((0, 1, 2, 3), weight=1, uniform="column")
-        self.window.grid_rowconfigure((0, 1, 2), weight=1, uniform="row", minsize=100)
+        self.window.grid_columnconfigure(0, weight=1, uniform="column")
+        self.window.grid_columnconfigure(1, weight=1, uniform="column")
+        self.window.grid_columnconfigure(2, weight=1, uniform="column")
+        self.window.grid_columnconfigure(3, weight=1, uniform="column")
+        self.window.grid_rowconfigure(0, weight=1, uniform="row", minsize=100)
+        self.window.grid_rowconfigure(1, weight=1, uniform="row", minsize=100)
+        self.window.grid_rowconfigure(2, weight=1, uniform="row", minsize=100)
         frame = Frame(self.window, width=win_width, height=win_height, bg=THEME_COLOR)
         frame.grid(column=0, row=0, columnspan=4, rowspan=4, sticky='NSEW')
 
@@ -70,7 +75,11 @@ class UserInterface:
         Hovertip(buttons[3], 'Go to homepage.', hover_delay=1000)
         nav_grid(buttons, 3)
 
-        if self.welcome:
+        # Connect to socket
+        welcome_socket.send("getskip".encode("utf-8")[:1024])
+        response = welcome_socket.recv(1024).decode("utf-8")
+
+        if response == "0":
             self.welcome_popup()
 
     def welcome_popup(self):
@@ -86,23 +95,22 @@ class UserInterface:
 
         display = Text(top)
         display.grid(column=0, row=0, columnspan=2, sticky='NSEW')
-        items = "Welcome to the Foodie App!\n\n" \
-                "Selecting add/edit/delete on the Home Page will allow you to make changes to the Pantry and/or Recipe Book.\n" \
-                "Selecting Pantry will allow you to view and add/edit/delete ingredients only.\n" \
-                "Selecting Recipe Book will allow you to view and add/edit/delete recipes only.\n" \
-                "Selecting Welcome Page will reopen this text box.\n" \
-                "Selecting Home on any page will bring you back to the Home Page.\n\n" \
-                "FAQ:\n" \
-                "Can I recover a deleted item?\n" \
-                "No, all deletions are permanent.\n\n" \
-                "How do I add a new ingredient?\n" \
-                "To add a new ingredient, please select Pantry -> Add. " \
-                "Alternatively, you may select Add -> Ingredient on the Homepage.\n"
-        display.insert(END, items)
+
+        # Connect to socket
+        welcome_socket.send("read".encode("utf-8")[:1024])
+        response = welcome_socket.recv(1024).decode("utf-8")
+
+        display.insert(END, response)
         display.config(state=DISABLED)
 
-        submit = Button(top, text="Skip on Next Opening")
+        submit = Button(top, text="Skip on Next Opening", command=lambda: self.skip_welcome(top))
         submit.grid(column=0, row=1, columnspan=2)
+
+    def skip_welcome(self, window):
+        # Connect to socket
+        welcome_socket.send("skip".encode("utf-8")[:1024])
+        response = welcome_socket.recv(1024).decode("utf-8").split("`")
+        window.destroy()
 
     def ingredients(self):
         """
@@ -110,15 +118,24 @@ class UserInterface:
         """
         for i in self.window.winfo_children():
             i.destroy()
-        self.window.grid_columnconfigure((0, 1, 2, 3), weight=1, uniform="column")
-        self.window.grid_rowconfigure((0, 1, 2), weight=1, uniform="row", minsize=100)
+        self.window.grid_columnconfigure(0, weight=1, uniform="column")
+        self.window.grid_columnconfigure(1, weight=1, uniform="column")
+        self.window.grid_columnconfigure(2, weight=1, uniform="column")
+        self.window.grid_columnconfigure(3, weight=1, uniform="column")
+        self.window.grid_rowconfigure(0, weight=1, uniform="row", minsize=100)
+        self.window.grid_rowconfigure(1, weight=1, uniform="row", minsize=100)
+        self.window.grid_rowconfigure(2, weight=1, uniform="row", minsize=100)
         frame = Frame(self.window, width=win_width, height=win_height, bg=THEME_COLOR)
         frame.grid(column=0, row=0, columnspan=4, rowspan=4, sticky='NSEW')
 
         display = Text(self.window)
         display.grid(column=0, row=0, rowspan=3, columnspan=4, sticky='NSEW')
-        items = self.handler.get_pantry()
-        display.insert(END, items)
+
+        # Connect to socket
+        pantry_socket.send("read".encode("utf-8")[:1024])
+        response = pantry_socket.recv(1024).decode("utf-8")
+
+        display.insert(END, response)
         display.config(state=DISABLED)
 
         buttons = [
@@ -192,13 +209,23 @@ class UserInterface:
         # Main Frame
         master_frame = Frame(self.window, width=win_width, height=win_height, bg=THEME_COLOR)
         master_frame.grid(column=0, row=0, columnspan=5, rowspan=4, sticky='NSEW')
-        master_frame.grid_columnconfigure((0, 1, 2, 3), weight=2, uniform="column")
-        master_frame.grid_rowconfigure((0, 1, 2), weight=2, uniform="row")
+        master_frame.grid_columnconfigure(0, weight=2, uniform="column")
+        master_frame.grid_columnconfigure(1, weight=2, uniform="column")
+        master_frame.grid_columnconfigure(2, weight=2, uniform="column")
+        master_frame.grid_columnconfigure(3, weight=2, uniform="column")
+        master_frame.grid_rowconfigure(0, weight=2, uniform="row")
+        master_frame.grid_rowconfigure(1, weight=2, uniform="row")
+        master_frame.grid_rowconfigure(2, weight=2, uniform="row")
         # Inner Frame to hold buttons and scroll bar
         inner_frame = Frame(master_frame, bg='Red')
         inner_frame.grid(row=0, column=0, columnspan=5, rowspan=3, sticky='NSEW')
-        inner_frame.grid_columnconfigure((0, 1, 2, 3), weight=2, uniform="column")
-        inner_frame.grid_rowconfigure((0, 1, 2), weight=2, uniform="row")
+        inner_frame.grid_columnconfigure(0, weight=2, uniform="column")
+        inner_frame.grid_columnconfigure(1, weight=2, uniform="column")
+        inner_frame.grid_columnconfigure(2, weight=2, uniform="column")
+        inner_frame.grid_columnconfigure(3, weight=2, uniform="column")
+        inner_frame.grid_rowconfigure(0, weight=2, uniform="row")
+        inner_frame.grid_rowconfigure(1, weight=2, uniform="row")
+        inner_frame.grid_rowconfigure(2, weight=2, uniform="row")
         # Canvas inside inner frame
         canvas = Canvas(inner_frame, bg='Yellow')
         canvas.grid(row=0, column=0, columnspan=5, rowspan=3, sticky='NSEW')
@@ -213,7 +240,12 @@ class UserInterface:
         row = 0
         col = 0
         button_list = [[0 for j in range(20)] for i in range(20)]
-        for recipe in self.handler.get_recipes():
+
+        # Connect to socket
+        recipe_socket.send("read".encode("utf-8")[:1024])
+        response = recipe_socket.recv(1024).decode("utf-8").split("`")
+
+        for recipe in response:
             button_list[row][col] = Button(buttons_frame, text=recipe, command=lambda x=recipe: self.recipe_popup(x))
             button_list[row][col].grid(column=col, row=row, sticky='NSEW')
             if col < 3:
@@ -222,7 +254,10 @@ class UserInterface:
                 col = 0
                 row += 1
 
-        buttons_frame.grid_columnconfigure((0, 1, 2, 3), weight=19, uniform="column")
+        buttons_frame.grid_columnconfigure(0, weight=19, uniform="column")
+        buttons_frame.grid_columnconfigure(1, weight=19, uniform="column")
+        buttons_frame.grid_columnconfigure(2, weight=19, uniform="column")
+        buttons_frame.grid_columnconfigure(3, weight=19, uniform="column")
         for row_num in range(buttons_frame.grid_size()[1]):
             buttons_frame.grid_rowconfigure(row_num, weight=1, uniform="row", minsize=100)
 
@@ -246,10 +281,25 @@ class UserInterface:
         UI to view selected recipe
         :param recipe: name of desired recipe
         """
-        self.handler.search_for_recipe(recipe)
+        # Connect to socket
+        recipe_socket.send(f"search`{recipe}".encode("utf-8")[:1024])
+        response = recipe_socket.recv(1024).decode("utf-8").split("`")
+
         top = Toplevel(self.window)
-        top.geometry("200x200")
-        top.title("Recipe")
+        top.title("View Recipe")
+        name_label = Label(top, text="Recipe Name")
+        name_label.grid(column=0, row=0)
+        name = Entry(top)
+        name.insert(0, response[0])
+        name.grid(column=1, row=0)
+        name.configure(state='disabled')
+
+        info_label = Label(top, text="Description")
+        info_label.grid(column=0, row=1)
+        info = Text(top)
+        info.insert('end', response[1])
+        info.grid(column=1, row=1)
+        info.configure(state='disabled')
 
     def new_recipe_popup(self):
         """
@@ -276,16 +326,32 @@ class UserInterface:
         """
         Submits user inputs and refreshes the page
         :param window: window to be closed
-        :param args: arguments to be sent to the handler
+        :param args: arguments to be sent to the microservice
         :param reload: window to be refreshed
         """
         if args[0] == "ingredient":
-            self.handler.new_ingredient(args=[args[1].get(), int(args[2].get()), args[3].get()])
+            # Connect to socket
+            args = ["new", args[1].get(), args[2].get(), args[3].get()]
+            pantry_socket.send("`".join(args).encode("utf-8")[:1024])
+            response = pantry_socket.recv(1024).decode("utf-8").split("`")
         elif args[0] == "recipe":
-            self.handler.new_recipe(args=[args[1].get(), args[2].get(1.0, "end-1c")])
+            # Connect to socket
+            args = ["new", args[1].get(), args[2].get(1.0, "end-1c")]
+            recipe_socket.send("`".join(args).encode("utf-8")[:1024])
+            response = recipe_socket.recv(1024).decode("utf-8").split("`")
         else:
             pass
-
         window.destroy()
         reload()
 
+
+recipe_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+recipe_socket.connect((SERVER_IP, RECIPE_PORT))
+
+pantry_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+pantry_socket.connect((SERVER_IP, PANTRY_PORT))
+
+welcome_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+welcome_socket.connect((SERVER_IP, WELCOME_PORT))
+
+pantry_ui = UserInterface()
