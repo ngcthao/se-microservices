@@ -1,10 +1,6 @@
 {
-    "Apple": {
-        "quantity": 1,
-        "unit of measurement": "units"
-    },
     "Chicken": {
-        "quantity": 1,
+        "quantity": "1",
         "unit of measurement": "units"
     },
     "Eat": {
@@ -12,11 +8,11 @@
         "unit of measurement": "units"
     },
     "Eggs": {
-        "quantity": 1,
+        "quantity": "1",
         "unit of measurement": "trays"
     },
     "Grapes": {
-        "quantity": 1,
+        "quantity": "1",
         "unit of measurement": "units"
     },
     "Icecream": {
@@ -24,11 +20,19 @@
         "unit of measurement": "pint"
     },
     "Lamb": {
-        "quantity": 1,
+        "quantity": "1",
         "unit of measurement": "units"
     },
     "Pen": {
         "quantity": "2",
+        "unit of measurement": "units"
+    },
+    "Plate": {
+        "quantity": "123",
+        "unit of measurement": "units"
+    },
+    "Poop": {
+        "quantity": "1",
         "unit of measurement": "units"
     }
 }
