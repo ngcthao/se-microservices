@@ -26,9 +26,9 @@ def get_skip():
     return data
 
 
-def skip():
+def edit_skip(val):
     with open('skip.txt', 'w', encoding='utf-8') as f:
-        f.write('1')
+        f.write(val)
     return "1"
 
 
@@ -51,13 +51,14 @@ def run_server():
                 break
 
             print(f"Received: {request}")
+            request = request.split("`")
 
-            if request.lower() == "read":
+            if request[0] == "read":
                 response = get_info().encode("utf-8")
-            elif request.lower() == "getskip":
+            elif request[0] == "getskip":
                 response = get_skip().encode("utf-8")
-            elif request.lower() == "skip":
-                response = skip().encode("utf-8")
+            elif request[0] == "editskip":
+                response = edit_skip(request[1]).encode("utf-8")
             else:
                 response = "invalid input".encode("utf-8")
             client_socket.send(response)

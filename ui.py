@@ -183,6 +183,14 @@ class UserInterface:
         submit = Button(frame, text="Save Settings", command=lambda: self.save_settings(top, args))
         submit.grid(column=0, row=2, columnspan=2)
 
+    def save_settings(self, window, args):
+        # Connect to color socket
+
+        # Connect to welcome socket
+        args = ["editskip", str(args[1].get())]
+        welcome_socket.send("`".join(args).encode("utf-8")[:1024])
+        response = welcome_socket.recv(1024).decode("utf-8").split("`")
+        window.destroy()
 
     def welcome_popup(self):
         """
@@ -213,7 +221,8 @@ class UserInterface:
         Skip welcome page on next opening
         """
         # Connect to socket
-        welcome_socket.send("skip".encode("utf-8")[:1024])
+        args = ["editskip", "1"]
+        welcome_socket.send("`".join(args).encode("utf-8")[:1024])
         response = welcome_socket.recv(1024).decode("utf-8").split("`")
         window.destroy()
 
