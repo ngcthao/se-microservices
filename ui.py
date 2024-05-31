@@ -4,7 +4,6 @@
 from tkinter import *
 from idlelib.tooltip import Hovertip
 import socket
-THEME_COLOR = "#375362"
 WHITE = "#FFFFFF"
 win_width = 400
 win_height = 500
@@ -32,9 +31,14 @@ class UserInterface:
         self.window.title("Pantry Application")
         self.window.config(padx=20, pady=20, bg=WHITE)
         self.window.geometry("440x540")
+        self.welcome = True
         self.home()
-
         self.window.mainloop()
+
+    def get_theme_color(self):
+        # Connect to color socket
+        color_socket.send("get".encode("utf-8")[:1024])
+        return color_socket.recv(1024).decode("utf-8")
 
     def home(self):
         """
@@ -50,7 +54,7 @@ class UserInterface:
         self.window.grid_rowconfigure(0, weight=1, uniform="row", minsize=100)
         self.window.grid_rowconfigure(1, weight=1, uniform="row", minsize=100)
         self.window.grid_rowconfigure(2, weight=1, uniform="row", minsize=100)
-        frame = Frame(self.window, width=win_width, height=win_height, bg=THEME_COLOR)
+        frame = Frame(self.window, width=win_width, height=win_height, bg=self.get_theme_color())
         frame.grid(column=0, row=0, columnspan=4, rowspan=4, sticky='NSEW')
 
         # Displays the Home page options
@@ -80,8 +84,9 @@ class UserInterface:
         welcome_socket.send("getskip".encode("utf-8")[:1024])
         response = welcome_socket.recv(1024).decode("utf-8")
 
-        if response == "0":
+        if response == "0" and self.welcome:
             self.welcome_popup()
+            self.welcome = False
 
     def add_popup(self):
         top = Toplevel(self.window)
@@ -164,33 +169,43 @@ class UserInterface:
         bg_label = Label(frame, text='BG Color')
         bg_label.grid(column=0, row=0)
 
-        options = ["blue", "red", "green"]
+        # Connect to color socket
+        color_socket.send("display".encode("utf-8")[:1024])
+        response = color_socket.recv(1024).decode("utf-8")
+        options = response.split("`")
+
         bg_color = StringVar()
-        bg_color.set("blue")
         color = OptionMenu(frame, bg_color, *options)
         color.grid(column=1, row=0, sticky="ew")
+
+        # Connect to welcome socket
+        welcome_socket.send("getskip".encode("utf-8")[:1024])
+        check = welcome_socket.recv(1024).decode("utf-8")
 
         welcome_label = Label(frame, text='Skip Welcome Page')
         welcome_label.grid(column=0, row=1)
 
         check_skip = IntVar()
-        check_skip.set(1)
+        check_skip.set(check)
         skip_button = Checkbutton(frame, variable=check_skip, onvalue=1, offvalue=0)
         skip_button.grid(column=1, row=1)
 
-        args = [bg_color, check_skip]
-
-        submit = Button(frame, text="Save Settings", command=lambda: self.save_settings(top, args))
+        submit = Button(frame, text="Save Settings", command=lambda: self.save_settings(top, bg_color, check_skip))
         submit.grid(column=0, row=2, columnspan=2)
 
-    def save_settings(self, window, args):
-        # Connect to color socket
+    def save_settings(self, window, color, skip):
+        if color.get() != "":
+            # Connect to color socket
+            color_args = ["save", color.get()]
+            color_socket.send("`".join(color_args).encode("utf-8")[:1024])
+            response1 = color_socket.recv(1024).decode("utf-8")
 
         # Connect to welcome socket
-        args = ["editskip", str(args[1].get())]
-        welcome_socket.send("`".join(args).encode("utf-8")[:1024])
-        response = welcome_socket.recv(1024).decode("utf-8").split("`")
+        skip_args = ["editskip", str(skip.get())]
+        welcome_socket.send("`".join(skip_args).encode("utf-8")[:1024])
+        response2 = welcome_socket.recv(1024).decode("utf-8").split("`")
         window.destroy()
+        self.home()
 
     def welcome_popup(self):
         """
@@ -239,7 +254,7 @@ class UserInterface:
         self.window.grid_rowconfigure(0, weight=1, uniform="row", minsize=100)
         self.window.grid_rowconfigure(1, weight=1, uniform="row", minsize=100)
         self.window.grid_rowconfigure(2, weight=1, uniform="row", minsize=100)
-        frame = Frame(self.window, width=win_width, height=win_height, bg=THEME_COLOR)
+        frame = Frame(self.window, width=win_width, height=win_height, bg=self.get_theme_color())
         frame.grid(column=0, row=0, columnspan=4, rowspan=4, sticky='NSEW')
 
         display = Text(self.window)
@@ -375,7 +390,7 @@ class UserInterface:
         for i in self.window.winfo_children():
             i.destroy()
         # Main Frame
-        master_frame = Frame(self.window, width=win_width, height=win_height, bg=THEME_COLOR)
+        master_frame = Frame(self.window, width=win_width, height=win_height, bg=self.get_theme_color())
         master_frame.grid(column=0, row=0, columnspan=5, rowspan=4, sticky='NSEW')
         master_frame.grid_columnconfigure(0, weight=2, uniform="column")
         master_frame.grid_columnconfigure(1, weight=2, uniform="column")
@@ -395,14 +410,14 @@ class UserInterface:
         inner_frame.grid_rowconfigure(1, weight=2, uniform="row")
         inner_frame.grid_rowconfigure(2, weight=2, uniform="row")
         # Canvas inside inner frame
-        canvas = Canvas(inner_frame, bg=THEME_COLOR)
+        canvas = Canvas(inner_frame, bg=self.get_theme_color())
         canvas.grid(row=0, column=0, columnspan=5, rowspan=3, sticky='NSEW')
         # Scroll bar linked to canvas
         scroll = Scrollbar(inner_frame, orient=VERTICAL, command=canvas.yview)
         scroll.grid(row=0, column=4, rowspan=3, sticky='NS')
         canvas.configure(yscrollcommand=scroll.set)
         # Frame to contain buttons grid
-        buttons_frame = Frame(canvas, bg=THEME_COLOR)
+        buttons_frame = Frame(canvas, bg=self.get_theme_color())
         buttons_frame.grid(row=0, column=0, sticky='NSEW')
 
         row = 0
@@ -629,7 +644,7 @@ pantry_socket.connect((SERVER_IP, PANTRY_PORT))
 welcome_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 welcome_socket.connect((SERVER_IP, WELCOME_PORT))
 
-# color_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# color_socket.connect((SERVER_IP, COLOR_PORT))
+color_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+color_socket.connect((SERVER_IP, COLOR_PORT))
 
 pantry_ui = UserInterface()

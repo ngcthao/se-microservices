@@ -129,20 +129,22 @@ def run_server():
             request = request.split("`")
 
             if request[0] == "new":
-                response = recipe.new_recipe(request[1:]).encode("utf-8")
+                response = recipe.new_recipe(request[1:])
             elif request[0] == "read":
-                response = recipe.read_recipes().encode("utf-8")
+                response = recipe.read_recipes()
             elif request[0] == "search":
-                response = recipe.search_recipes(request[1]).encode("utf-8")
+                response = recipe.search_recipes(request[1])
             elif request[0] == "edit":
-                response = recipe.edit_recipe(request[1:]).encode("utf-8")
+                response = recipe.edit_recipe(request[1:])
             elif request[0] == "delete":
-                response = recipe.delete_recipe(request[1]).encode("utf-8")
+                response = recipe.delete_recipe(request[1])
             elif request[0] == "dropdown":
-                response = recipe.dropdown_display().encode("utf-8")
+                response = recipe.dropdown_display()
             else:
-                response = "invalid input".encode("utf-8")
-            client_socket.send(response)
+                response = "invalid input"
+
+            print(f"Sending: {response}\n\n")
+            client_socket.send(response.encode("utf-8"))
 
     except Exception as e:
         print(f"Error: {e}")

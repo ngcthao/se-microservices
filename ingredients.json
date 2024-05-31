@@ -1,15 +1,15 @@
 {
+    "Cake": {
+        "quantity": "1",
+        "unit of measurement": "cans"
+    },
     "Chicken": {
         "quantity": "1",
         "unit of measurement": "units"
     },
-    "Eat": {
-        "quantity": "1",
-        "unit of measurement": "units"
-    },
     "Eggs": {
-        "quantity": "1",
-        "unit of measurement": "trays"
+        "quantity": "123",
+        "unit of measurement": "units"
     },
     "Grapes": {
         "quantity": "1",

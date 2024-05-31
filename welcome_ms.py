@@ -54,14 +54,16 @@ def run_server():
             request = request.split("`")
 
             if request[0] == "read":
-                response = get_info().encode("utf-8")
+                response = get_info()
             elif request[0] == "getskip":
-                response = get_skip().encode("utf-8")
+                response = get_skip()
             elif request[0] == "editskip":
-                response = edit_skip(request[1]).encode("utf-8")
+                response = edit_skip(request[1])
             else:
-                response = "invalid input".encode("utf-8")
-            client_socket.send(response)
+                response = "invalid input"
+
+            print(f"Sending: {response}\n\n")
+            client_socket.send(response.encode("utf-8"))
 
     except Exception as e:
         print(f"Error: {e}")

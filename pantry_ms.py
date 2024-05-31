@@ -122,18 +122,20 @@ def run_server():
             request = request.split("`")
 
             if request[0] == "new":
-                response = pantry.new_ingredient(request[1:]).encode("utf-8")
+                response = pantry.new_ingredient(request[1:])
             elif request[0] == "read":
-                response = pantry.read_ingredients().encode("utf-8")
+                response = pantry.read_ingredients()
             elif request[0] == "edit":
-                response = pantry.edit_ingredient(request[1:]).encode("utf-8")
+                response = pantry.edit_ingredient(request[1:])
             elif request[0] == "delete":
-                response = pantry.delete_ingredient(request[1]).encode("utf-8")
+                response = pantry.delete_ingredient(request[1])
             elif request[0] == "dropdown":
-                response = pantry.dropdown_display().encode("utf-8")
+                response = pantry.dropdown_display()
             else:
-                response = "invalid input".encode("utf-8")
-            client_socket.send(response)
+                response = "invalid input"
+
+            print(f"Sending: {response}\n\n")
+            client_socket.send(response.encode("utf-8"))
 
     except Exception as e:
         print(f"Error: {e}")
