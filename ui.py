@@ -11,7 +11,7 @@ SERVER_IP = "127.0.0.1"
 RECIPE_PORT = 8100
 PANTRY_PORT = 8400
 WELCOME_PORT = 8300
-COLOR_PORT = 8500
+COLOR_PORT = 6255
 
 
 def nav_grid(buttons, row):
@@ -37,7 +37,7 @@ class UserInterface:
 
     def get_theme_color(self):
         # Connect to color socket
-        color_socket.send("get".encode("utf-8")[:1024])
+        color_socket.send("getcolor".encode("utf-8")[:1024])
         return color_socket.recv(1024).decode("utf-8")
 
     def home(self):
@@ -196,8 +196,7 @@ class UserInterface:
     def save_settings(self, window, color, skip):
         if color.get() != "":
             # Connect to color socket
-            color_args = ["save", color.get()]
-            color_socket.send("`".join(color_args).encode("utf-8")[:1024])
+            color_socket.send(color.get().encode("utf-8")[:1024])
             response1 = color_socket.recv(1024).decode("utf-8")
 
         # Connect to welcome socket
